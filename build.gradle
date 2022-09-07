@@ -47,9 +47,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.quarkus:quarkus-hibernate-orm-panache:2.11.2.Final'
-    implementation 'io.quarkus:quarkus-agroal:2.11.2.Final'
-    implementation 'io.quarkus:quarkus-jdbc-postgresql:2.11.2.Final'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-resteasy-reactive-jackson:2.11.2.Final'
     implementation 'io.quarkus:quarkus-arc:2.11.2.Final'
