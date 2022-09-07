@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  my-application:
+    image: ${WANTED_TAG}
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - 8080:8080
+    container_name: my-application
+    networks:
+      backend_network:
+        ipv4_address: 172.16.239.15
+
+  postgres:
+    image: postgres:14.4
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: medb123
+      POSTGRES_DB: my-application
+    ports:
+      - 5432:5432
+    container_name: postgres
+    networks:
+      backend_network:
+        ipv4_address: 172.16.239.14
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+
+networks:
+  backend_network:
+    driver: bridge
+    name: backend_network
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.239.0/24
+          ip_range: 172.16.239.0/20
+          gateway: 172.16.239.1

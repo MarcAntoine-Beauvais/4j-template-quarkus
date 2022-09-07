@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id 'org.graalvm.buildtools.native' version '0.9.13'
+    id 'java-library'
+}
+
+def getVersion = { ->
+    try {
+        def version
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'tag', '--points-at', 'HEAD'
+            standardOutput = stdout
+            ignoreExitValue = true
+        }
+        def current = stdout.toString()
+        if(current == ""){
+            stdout = new ByteArrayOutputStream()
+            exec {
+                commandLine 'git', 'describe', '--abbrev=0', '--tags'
+                standardOutput = stdout
+            }
+            def previous = stdout.toString().trim().substring(1)
+            def patchNumber = Integer.parseInt(previous.substring(previous.lastIndexOf(".") + 1))
+            version = previous.substring(0, previous.lastIndexOf(".") + 1) + (patchNumber + 1) + '-SNAPSHOT'
+        }else{
+            version = current.substring(1, current.length() - 1)
+        }
+
+        return version
+    } catch (ignored) {
+        return -1
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+        vendor = JvmVendorSpec.matching("GraalVM Community")
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache:2.11.2.Final'
+    implementation 'io.quarkus:quarkus-agroal:2.11.2.Final'
+    implementation 'io.quarkus:quarkus-jdbc-postgresql:2.11.2.Final'
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-resteasy-reactive-jackson:2.11.2.Final'
+    implementation 'io.quarkus:quarkus-arc:2.11.2.Final'
+    implementation 'io.quarkus:quarkus-smallrye-openapi:2.11.2.Final'
+    testImplementation 'io.quarkus:quarkus-junit5:2.11.2.Final'
+    testImplementation 'io.rest-assured:rest-assured:4.5.1'
+    testImplementation 'io.quarkus:quarkus-panache-mock:2.11.2.Final'
+}
+
+group 'com.me'
+version getVersion()
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}

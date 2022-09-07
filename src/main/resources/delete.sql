@@ -1,0 +1,3 @@
+DELETE
+FROM my_table
+WHERE 1 = 1;
